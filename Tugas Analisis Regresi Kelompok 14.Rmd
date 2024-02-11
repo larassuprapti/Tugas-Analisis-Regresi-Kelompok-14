@@ -1,0 +1,228 @@
+---
+title: "Tugas Kuliah Analisis Regresi"
+author: "Hesty_G1401221019, Muhammad Firlan Maulana_G1401221042, Laras Suprapti_G1401221044"
+date: "2024-02-07"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+
+# Read Data
+```{r}
+Data_Sleep<- read.csv("D:/firlan/Documents/College/Semester 4/Analisis Regeresi/Kuliah 3/Sleep Health and Lifestyle.csv", sep=";",)
+
+y<-Data_Sleep$QualityofSleep
+x<-Data_Sleep$StressLevel
+
+
+
+Data_Sleep<-data.frame(cbind(y,x))
+head(Data_Sleep)
+
+n<-nrow(Data_Sleep)
+p<-ncol(Data_Sleep)
+```
+
+# Deskripsi Data
+Dataset berjudul Sleep Health and Lifestyle Dataset dari laman web kaggle. Seperti judulnya, data ini berisikan hubungan gaya hidup dengan kualitas tidur. Data diupload di kaggle oleh Laksika Tharmalingam selaku pemilik dataset. Di dalam dataset terdapat beberapa variabel seperti durasi tidur dalam satuan jam, kualitas tidur dalam skala 1 sampai 10, tingkatan stress dalam skala 1 sampai 10, tekanan darah, usia, jenis kelamin, dan lain sebagainya.  Dari variabel-variabel tersebut kelompok kami memilih variabel kualitas tidur dan tingkatan stress untuk dilihat hubungannya.
+
+
+# Persamaan Regresi Linear Sederhana (menggunakan fungsi lm)
+```{r}
+model<-lm(y~x,Data_Sleep<-Data_Sleep)
+summary(model)
+```
+Dari perhitungan tersebut, didapati dugaan persamaan regresi linear sederhana atau nilai harapan dari peubah respon Y adalah sebagai berikut.
+E[Y]^ = Y^ = 10.57739-0.60623X
+
+Berikut interpretasinya.
+1. Rata-rata skala kualitas tidur jika tingkatan stress bernilai 0 adalah berada di skala 10.57739. Namun dalam dataset ini angka 0 tidak terdapat dalam selang variabel X sehingga interpretasi ini tidak praktis karena angka 0 tidak terdapat pada skala tingkatan stress 1 sampai 10.
+2. Setiap peningkatan satu skala tingkatan stress akan mengurangi skala kualitas tidur sebesar 0.60623.
+
+
+# Ringkasan Umum variabel StressLevel(X) dan QualityofSleep(Y)
+```{r}
+summary(x)
+summary(y)
+```
+Diketahui nilai minimum dan maksimum dari masing-masing variabel. Diketahui pula nilai dari kuartil 1, median, dan kuartil 3 sekaligus rata-rata dari variabel x dan y.
+
+
+# Scatter Plot
+Dalam hal ini kami ingin melihat hubungan antara tingkatan stress dan kualitas tidur sehingga tingkatan stress menjadi sumbu-x dan kualitas tidur sebagai sumbu-y. Kami menduga bahwa semakin tinggi tingkatan stress seseorang akan mengakibatkan penurunan kualitas tidur.
+```{r}
+y.bar <- mean(y)
+plot(x,y)
+abline(model, col="red")
+text(30, 220, "Y_duga", adj = c(-0.1, 1.5), col = "red", cex = 0.8)
+abline(h=y.bar, col="blue")
+text(31, 185, "Y_bar", adj = c(-0.1, 1.5), col = "blue", cex = 0.8)
+```
+Ditunjukkan dua buah garis yakni garis biru dan garis merah dari scatter plot tersebut. Garis biru merupakan garis Y_bar atau garis dari rata-rata skala kualitas tidur, sedangkan garis merah adalah garis persamaan regresi. Dapat dilihat bahwa garis merah (garis persamaan regresi linear) mengarah ke bawah kanan sesuai dengan nilai slope (b1) yang negatif.
+
+
+# Boxplot StressLevel (tingkatan stress)
+```{r}
+boxplot(x)
+```
+Dari boxplot diketahui bahwa data tingkatan stress relatif menyebar dengan normal, tampak dari jambang boxplot yang sama panjangnya antara kanan dan kiri. Tampak pula bahwa tidak terdapat pencilan dalam data tersebut.
+
+
+# Boxplot QualityofSleep (kualitas tidur)
+```{r}
+boxplot(y)
+```
+Dari boxplot tampak bahwa sebaran data dari variabel kualitas tidur relatif menjulur ke kiri dan tidak memiliki pencilan.
+
+
+# KOEFISIEN DETERMINASI DAN PENYESUAIANNYA 
+
+```{r}
+r<-(sum(x*y)-sum(x)*sum(y)/n)/
+sqrt((sum(x^2)-(sum(x)^2/n))*(sum(y^2)-(sum(y)^2/n)))
+Koef_det<-r^2
+Koef_det
+r
+```
+didapatkan bahwa koefisien determinasi sebesar 0.8077552 dan -0.898752 yang menunjukkan bahwa hubungan antara tingkatan stress terhadap qualitas tidur yang sangat baik.
+
+
+## UKURAN KERAGAMAN
+
+```{r}
+b1<-(sum(x*y)-sum(x)*sum(y)/n)/(sum(x^2)-(sum(x)^2/n))
+b1
+b0<-mean(y)-b1*mean(x)
+b0
+```
+
+```{r}
+galat<-y-(b0+b1*x)
+
+JKG <- sum((y - (b0+b1*x))^2)
+JKReg <- sum(((b0+b1*x)- mean(y))^2)
+JKT <- sum((y - mean(y))^2)
+JKT <- JKReg+JKG
+
+dbReg<-1
+dbg<-n-2
+dbt<-n-1
+
+Fhit<-(JKReg/dbReg)/(JKG/dbg)
+Fhit
+```
+
+
+### Penguraian Keragaman
+
+```{r}
+y.bar <- mean(y)
+plot(x,y)
+abline(model, col="red")
+text(30, 220, "Y_duga", adj = c(-0.1, 1.5), col = "red", cex = 0.8)
+abline(h=y.bar, col="blue")
+text(31, 185, "Y_bar", adj = c(-0.1, 1.5), col = "blue", cex = 0.8)
+```
+Dari scatter plot di atas, teramati adanya amatan yang menyimpang relatif terhadap nilai harapannya. Penyimpangan amatan dari nilai harapannya inilah yang disebut sebagai galat. Keragaman dari galat tiap amatan ini dapat diurai berdasarkan garis dugaan persamaan (Y^) dan garis rataan nilai resposnya (Y¯). Penguraian keragaman ini dapat dituliskan sebagai Jumlah Kuadrat Regresi (JKR), Jumlah Kuadrat Galat (JKG), dan Jumlah Kuadrat Total (JKT).
+Nilai penguraian keragaman ini dapat diamati pula menggunakan fungsi anova pada bagian Sum Sq (Jumlah Kuadrat) seperti yang ditampilkan di bawah. Pada output sintaks di bawah, JKR model bernilai 431.66 dan JKG model bernilai 102.74.
+
+```{r}
+anova(model)
+```
+Dari tabel ANOVA dan penguraian keragaman, dapat diduga pula ragam galat/error dari model yang kita peroleh. Secara umum, error dari model dapat diduga oleh nilai Kuadrat Tengah Galat (KTG) sehingga berdasarkan output sintaks di atas, diketahui bahwa ragam galat dari model bernilai 0,28. Hubungan antara keduanya dapat dituliskan sebagai berikut.
+
+```{r}
+(KTG <- anova(model)$`Mean Sq`[2])
+```
+
+```{r}
+(galat.baku <- sqrt(KTG))
+```
+Dari nilai dugaan ragam galat di atas, dapat diduga pula nilai dugaan dari simpangan bakunya. Dugaan simpangan baku inilah yang disebut sebagai galat baku. 
+Oleh karena simpangan baku merupakan akar kuadrat dari ragam, maka nilai dugaan galat baku model yang kita bentuk adalah se= 0.525519
+
+
+### Keragaman Dugaan Parameter
+
+### Dugaan Paramater β0 
+```{r}
+(b0 <- model$coefficients[[1]])
+```
+
+```{r}
+(se_b0 <- sqrt(KTG*(1/n+mean(x)^2/sum((x-mean(x))^2))))
+```
+
+```{r}
+(t_b0 <- b0/se_b0)
+```
+
+```{r}
+(t_tab <- qt(0.025,anova (model)$Df[2],lower.tail=FALSE))
+```
+Didapatkan bahwa t_b0 = 121.6775 > t_tab = 1.966362 maka tolak H0(b0=0), artinya ada qualitas tidur yang tidak dapat dijelaskan oleh tingkatan stress.
+
+### Dugaan Paramater β1
+```{r}
+(b1 <- model$coefficients[[2]])
+```
+
+```{r}
+(se_b1 <- sqrt(KTG/sum((x-mean(x))^2)))
+```
+
+```{r}
+(t_b1 <- b1/se_b1)
+```
+Didapatkan bahwa |t_b1| = 39.53521 > t_tab = 1.966362 maka tolak H0(b1=0), artinya berpengaruh (hubungan linear) tingkatan stress terhadap qualitas tidur.
+
+### Selang Kepercayaan Parameter
+Batas bawah untuk kedua dugaan parameter dalam taraf kepercayaan α=0.05 dapat dihitung sebagai berikut.
+
+```{r}
+#Batas Bawah β0
+(bb.b0 <- b0 - abs(qt(0.025, df=n-2))*se_b0)
+```
+
+```{r}
+#Batas Bawah β1
+(bb.b1 <- b1 - abs(qt(0.025, df=n-2))*se_b1)
+```
+Sementara itu, batas atas untuk kedua dugaan parameter dalam taraf kepercayaan α=0.05 dapat dihitung sebagai berikut.
+
+```{r}
+#Batas Atas β_0
+(ba.b0 <- b0 + abs(qt(0.025, df=n-2))*se_b0)
+```
+
+```{r}
+#Batas Atas β_1
+(ba.b1 <- b1 + abs(qt(0.025, df=n-2))*se_b1)
+```
+Sehingga dapat disusun suatu selang kepercayaan untuk β0^ dan β1^ sebagai berikut.
+
+10.40645<β0^<10.74832
+
+Yang dapat dimaknai bahwa dalam taraf kepercayaan 95%, diyakini bahwa dugaan parameter β0^ berada dalam selang 10.40645 hingga 10.74832.
+
+-0.6363793<β1^<-0.5760755
+
+Yang dapat dimaknai bahwa dalam taraf kepercayaan 95%, diyakini bahwa dugaan parameter β1^
+berada dalam selang -0.6363793 hingga -0.5760755.
+
+### Selang Kepercayaan Rataan (Nilai Harapan) Amatan
+```{r}
+amatan.diduga <- data.frame(x=8)
+predict(model, amatan.diduga, interval = "confidence")
+```
+Berdasarkan output sintaks di atas, diketahui bahwa dugaan rataan nilai Y ketika nilai x1=8
+adalah 5.727566. Selain itu, diindikasikan juga bahwa dalam taraf kepercayaan α=0.05, diyakini bahwa nilai dugaan rataan Y ketika nilai x1=8 berada dalam selang 5.632319 hingga 5.822812.
+
+### Selang Kepercayaan Individu Amatan
+```{r}
+predict(model, amatan.diduga, interval = "prediction")
+```
+Berdasarkan output sintaks di atas, diketahui bahwa dugaan nilai individu Y ketika nilai x1=8
+adalah 5.727566. Selain itu, diindikasikan juga bahwa dalam taraf kepercayaan α=0.05, diyakini bahwa nilai amatan individu Y ketika nilai x1=8 berada dalam selang  4.689825 hingga  6.765306
